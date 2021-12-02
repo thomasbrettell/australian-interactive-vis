@@ -27719,6 +27719,12 @@ var color = d3.scale.ordinal().range(['#ffffb3']);
 const body = d3.select('body');
 const svg = body.append('svg').attr('width', w).attr('height', h);
 
+console.log(Hammer)
+const hammertime = new Hammer(svg[0][0]);
+hammertime.get('pinch').set({ enable: true });
+hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
+
 var path = d3.geo.path().projection(projection);
 
 var g = svg.append('g');
