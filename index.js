@@ -27713,70 +27713,73 @@ var projection = d3.geo
 //Define path generator
 var path = d3.geo.path().projection(projection);
 
-var color = d3.scale.ordinal().range(["#ffffb3"]);
+var color = d3.scale.ordinal().range(['#ffffb3']);
 
 //Create SVG
-var svg = d3
-  .select("#svganchor")
-  .append("svg")
-  .attr("width", w)
-  .attr("height", h);
+const root = d3
+  .select('#svganchor')
+  .style('width', `${w}px`)
+  .style('height', `${h}px`);
+const viewport = root.append('div').attr('class', 'viewport');
+const unselectableLayer = viewport.append('div').attr('class', 'unselectable');
+const layer = unselectableLayer.append('div').attr('class', 'layer');
+const svg = unselectableLayer.append('svg').attr('width', w).attr('height', h);
 
 var path = d3.geo.path().projection(projection);
 
-var g = svg.append("g");
+var g = svg.append('g');
 
 //Load in GeoJSON data
 d3.json(
-  "https://gist.githubusercontent.com/GerardoFurtado/02aa65e5522104cb692e/raw/8108fbd4103a827e67444381ff594f7df8450411/aust.json",
+  'https://gist.githubusercontent.com/GerardoFurtado/02aa65e5522104cb692e/raw/8108fbd4103a827e67444381ff594f7df8450411/aust.json',
   function (json) {
     //Bind data and create one path per GeoJSON feature
-    g.selectAll("path")
+    g.selectAll('path')
       .data(json.features)
       .enter()
-      .append("path")
-      .attr("d", path)
-      .attr("stroke", "dimgray")
-      .attr("stroke-width", STATE_BORDER_SIZE)
-      .attr("fill", function (d, i) {
+      .append('path')
+      .attr('d', path)
+      .attr('stroke', 'dimgray')
+      .attr('stroke-width', STATE_BORDER_SIZE)
+      .attr('fill', function (d, i) {
         console.log;
         return color(i);
       });
 
     //States
 
-    g.selectAll("circle")
+    g.selectAll('circle')
       .data(postCodeData)
       .enter()
-      .append("circle")
-      .attr("r", POSTCODE_R)
-      .attr("cx", (d) => projection([d.Longitude, d.Latitude])[0])
-      .attr("cy", (d) => projection([d.Longitude, d.Latitude])[1])
-      .attr("fill", "#ff00005c")
-      .append("title")
+      .append('circle')
+      .attr('r', POSTCODE_R)
+      .attr('cx', (d) => projection([d.Longitude, d.Latitude])[0])
+      .attr('cy', (d) => projection([d.Longitude, d.Latitude])[1])
+      .attr('fill', '#ff00005c')
+      .append('title')
       .text((d) => d.Postcode);
 
-    g.selectAll("text")
+    g.selectAll('text')
       .data(json.features)
       .enter()
-      .append("text")
-      .attr("fill", "darkslategray")
+      .append('text')
+      .attr('fill', 'darkslategray')
       .attr(
-        "transform-origin",
+        'transform-origin',
         (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
       )
       // .attr("transform", function (d) {
       //   return "translate(" + path.centroid(d) + ")";
       // })
-      .attr("x", function (d) {
+      .attr('x', function (d) {
         return path.centroid(d)[0];
       })
-      .attr("y", function (d) {
+      .attr('y', function (d) {
         return path.centroid(d)[1];
       })
-      .attr("text-anchor", "middle")
-      .attr("dy", ".35em")
-      .attr("font-size", `${STATE_FONT_SIZE}px`)
+      .attr('text-anchor', 'middle')
+      .attr('dy', '.35em')
+      .attr('font-size', `${STATE_FONT_SIZE}px`)
       .text(function (d) {
         return d.properties.STATE_NAME;
       });
@@ -27786,36 +27789,33 @@ d3.json(
 var zoom = d3.behavior
   .zoom()
   .scaleExtent([1, 128])
-  .on("zoom", function () {
+  .on('zoom', function () {
     g.attr(
-      "transform",
-      "translate(" +
-        d3.event.translate.join(",") +
-        ") scale(" +
+      'transform',
+      'translate(' +
+        d3.event.translate.join(',') +
+        ') scale(' +
         d3.event.scale +
-        ")"
+        ')'
     );
-    g.selectAll("path").attr("d", path.projection(projection));
+    g.selectAll('path').attr('d', path.projection(projection));
 
-    g.selectAll("text")
+    g.selectAll('text')
       // .transition()
       // .attr("transform", "scale(" + zoom.scale() + ")")
-      .attr("font-size", `${STATE_FONT_SIZE / zoom.scale()}px`);
+      .attr('font-size', `${STATE_FONT_SIZE / zoom.scale()}px`);
 
-    g.selectAll("path").attr(
-      "stroke-width",
+    g.selectAll('path').attr(
+      'stroke-width',
       `${STATE_BORDER_SIZE / zoom.scale()}px`
     );
 
-    g.selectAll("path").attr(
-      "stroke-width",
+    g.selectAll('path').attr(
+      'stroke-width',
       `${STATE_BORDER_SIZE / zoom.scale()}px`
     );
 
-    g.selectAll("circle").attr(
-      "r",
-      POSTCODE_R / zoom.scale()
-    );
+    g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
 
     // svg
     //   .selectAll("circle")
