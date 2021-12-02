@@ -27784,7 +27784,6 @@ const zoom = d3.behavior
   .zoom()
   .scaleExtent([1, 128])
   .on('zoom', function () {
-    console.log(d3.event.translate.join(','))
     // g.attr(
     //   'transform',
     //   'translate(' +
@@ -27794,7 +27793,12 @@ const zoom = d3.behavior
     //     ')'
     // );
     // g.selectAll('path').attr('d', path.projection(projection));
-    g.selectAll('path').attr('transform', `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`);
+    g.selectAll('path')
+      .attr(
+        'transform',
+        `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
+      )
+      .attr('stroke-width', `${STATE_BORDER_SIZE / zoom.scale()}px`);
 
     // g.selectAll('text').attr(
     //   'font-size',
@@ -27823,4 +27827,4 @@ const zoom = d3.behavior
     // d3.select("#map-zoomer").node().value = zoom.scale();
   });
 
-  svg.call(zoom);
+svg.call(zoom);
