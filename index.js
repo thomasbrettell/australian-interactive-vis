@@ -12686,46 +12686,36 @@ const postCodeData = [
   },
 ];
 
-console.log(postCodeData.length);
-
-//Width and height
-var w = window.innerWidth;
-var h = window.innerHeight;
+//Control variables
+const w = window.innerWidth;
+const h = window.innerHeight;
 const STATE_FONT_SIZE = 16;
 const STATE_BORDER_SIZE = 0.5;
 const POSTCODE_R = 5;
 
 //Define map projection
-var projection = d3.geo
+const projection = d3.geo
   .mercator()
   .center([137, -28])
   .translate([w / 2, h / 2])
   .scale(1500);
 
 //Define path generator
-var path = d3.geo.path().projection(projection);
+const path = d3.geo.path().projection(projection);
 
-var color = d3.scale.ordinal().range(['#ffffb3']);
+const color = d3.scale.ordinal().range(['#ffffb3']);
 
 //Create SVG
 const body = d3.select('body');
 const svg = body.append('svg').attr('width', w).attr('height', h);
-
-// console.log(Hammer);
-// const hammertime = new Hammer(svg[0][0]);
-// hammertime.get('pinch').set({ enable: true });
-// hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-// hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
-
-var path = d3.geo.path().projection(projection);
-
-var g = svg.append('g');
+const g = svg.append('g');
 
 //Load in GeoJSON data
 d3.json(
   'https://gist.githubusercontent.com/GerardoFurtado/02aa65e5522104cb692e/raw/8108fbd4103a827e67444381ff594f7df8450411/aust.json',
   function (json) {
-    //Bind data and create one path per GeoJSON feature
+    //Add vis elements
+    //States
     g.selectAll('path')
       .data(json.features)
       .enter()
@@ -12738,8 +12728,7 @@ d3.json(
         return color(i);
       });
 
-    //States
-
+    //Postcodes
     g.selectAll('circle')
       .data(postCodeData)
       .enter()
@@ -12751,6 +12740,7 @@ d3.json(
       .append('title')
       .text((d) => d.Postcode);
 
+    //State names
     g.selectAll('text')
       .data(json.features)
       .enter()
@@ -12760,9 +12750,6 @@ d3.json(
         'transform-origin',
         (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
       )
-      // .attr("transform", function (d) {
-      //   return "translate(" + path.centroid(d) + ")";
-      // })
       .attr('x', function (d) {
         return path.centroid(d)[0];
       })
@@ -12781,44 +12768,27 @@ d3.json(
 const zoom = d3.behavior
   .zoom()
   .scaleExtent([1, 128])
-  .on('zoom', function () {
+  .on('zoom', () => {
+    //Adjust group on zoom
     g.attr(
       'transform',
       `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
     );
-    // g.selectAll('path').attr('d', path.projection(projection));
-    g.selectAll('path')
-      // .attr(
-      //   'transform',
-      //   `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
-      // )
-      .attr('stroke-width', `${STATE_BORDER_SIZE / zoom.scale()}px`);
 
+    //Adjust States on zoom
+    g.selectAll('path').attr(
+      'stroke-width',
+      `${STATE_BORDER_SIZE / zoom.scale()}px`
+    );
+
+    //Adjust State names on zoom
     g.selectAll('text').attr(
       'font-size',
       `${STATE_FONT_SIZE / zoom.scale()}px`
     );
 
-    // g.selectAll('path').attr(
-    //   'stroke-width',
-    //   `${STATE_BORDER_SIZE / zoom.scale()}px`
-    // );
-
+    //Adjust data points on zoom
     g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
-
-    // svg
-    //   .selectAll("circle")
-    //   .attr(
-    //     "transform",
-    //     "translate(" +
-    //       d3.event.translate.join(",") +
-    //       ") scale(" +
-    //       d3.event.scale +
-    //       ")"
-    //   )
-    //   .transition()
-    //   .attr("r", 5 / d3.event.scale);
-    // d3.select("#map-zoomer").node().value = zoom.scale();
   });
 
 svg.call(zoom);
