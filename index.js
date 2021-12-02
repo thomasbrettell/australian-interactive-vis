@@ -27723,7 +27723,7 @@ console.log(Hammer);
 const hammertime = new Hammer(svg[0][0]);
 hammertime.get('pinch').set({ enable: true });
 hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
+// hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
 
 var path = d3.geo.path().projection(projection);
 
