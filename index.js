@@ -27716,14 +27716,9 @@ var path = d3.geo.path().projection(projection);
 var color = d3.scale.ordinal().range(['#ffffb3']);
 
 //Create SVG
-const root = d3
-  .select('#svganchor')
-  .style('width', `${w}px`)
-  .style('height', `${h}px`);
-const viewport = root.append('div').attr('class', 'viewport');
-const unselectableLayer = viewport.append('div').attr('class', 'unselectable');
-const layer = unselectableLayer.append('div').attr('class', 'layer');
-const svg = unselectableLayer.append('svg').attr('width', w).attr('height', h);
+const body = d3
+  .select('body')
+const svg = body.append('svg').attr('width', w).attr('height', h);
 
 var path = d3.geo.path().projection(projection);
 
