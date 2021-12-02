@@ -27719,7 +27719,7 @@ var color = d3.scale.ordinal().range(['#ffffb3']);
 const body = d3.select('body');
 const svg = body.append('svg').attr('width', w).attr('height', h);
 
-console.log(Hammer)
+console.log(Hammer);
 const hammertime = new Hammer(svg[0][0]);
 hammertime.get('pinch').set({ enable: true });
 hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
@@ -27748,41 +27748,41 @@ d3.json(
 
     //States
 
-    // g.selectAll('circle')
-    //   .data(postCodeData)
-    //   .enter()
-    //   .append('circle')
-    //   .attr('r', POSTCODE_R)
-    //   .attr('cx', (d) => projection([d.Longitude, d.Latitude])[0])
-    //   .attr('cy', (d) => projection([d.Longitude, d.Latitude])[1])
-    //   .attr('fill', '#ff00005c')
-    //   .append('title')
-    //   .text((d) => d.Postcode);
+    g.selectAll('circle')
+      .data(postCodeData)
+      .enter()
+      .append('circle')
+      .attr('r', POSTCODE_R)
+      .attr('cx', (d) => projection([d.Longitude, d.Latitude])[0])
+      .attr('cy', (d) => projection([d.Longitude, d.Latitude])[1])
+      .attr('fill', '#ff00005c')
+      .append('title')
+      .text((d) => d.Postcode);
 
-    // g.selectAll('text')
-    //   .data(json.features)
-    //   .enter()
-    //   .append('text')
-    //   .attr('fill', 'darkslategray')
-    //   .attr(
-    //     'transform-origin',
-    //     (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
-    //   )
-    //   // .attr("transform", function (d) {
-    //   //   return "translate(" + path.centroid(d) + ")";
-    //   // })
-    //   .attr('x', function (d) {
-    //     return path.centroid(d)[0];
-    //   })
-    //   .attr('y', function (d) {
-    //     return path.centroid(d)[1];
-    //   })
-    //   .attr('text-anchor', 'middle')
-    //   .attr('dy', '.35em')
-    //   .attr('font-size', `${STATE_FONT_SIZE}px`)
-    //   .text(function (d) {
-    //     return d.properties.STATE_NAME;
-    //   });
+    g.selectAll('text')
+      .data(json.features)
+      .enter()
+      .append('text')
+      .attr('fill', 'darkslategray')
+      .attr(
+        'transform-origin',
+        (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
+      )
+      // .attr("transform", function (d) {
+      //   return "translate(" + path.centroid(d) + ")";
+      // })
+      .attr('x', function (d) {
+        return path.centroid(d)[0];
+      })
+      .attr('y', function (d) {
+        return path.centroid(d)[1];
+      })
+      .attr('text-anchor', 'middle')
+      .attr('dy', '.35em')
+      .attr('font-size', `${STATE_FONT_SIZE}px`)
+      .text(function (d) {
+        return d.properties.STATE_NAME;
+      });
   }
 );
 
@@ -27790,33 +27790,29 @@ const zoom = d3.behavior
   .zoom()
   .scaleExtent([1, 128])
   .on('zoom', function () {
-    // g.attr(
-    //   'transform',
-    //   'translate(' +
-    //     d3.event.translate.join(',') +
-    //     ') scale(' +
-    //     d3.event.scale +
-    //     ')'
-    // );
+    g.attr(
+      'transform',
+      `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
+    );
     // g.selectAll('path').attr('d', path.projection(projection));
     g.selectAll('path')
-      .attr(
-        'transform',
-        `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
-      )
+      // .attr(
+      //   'transform',
+      //   `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
+      // )
       .attr('stroke-width', `${STATE_BORDER_SIZE / zoom.scale()}px`);
 
-    // g.selectAll('text').attr(
-    //   'font-size',
-    //   `${STATE_FONT_SIZE / zoom.scale()}px`
-    // );
+    g.selectAll('text').attr(
+      'font-size',
+      `${STATE_FONT_SIZE / zoom.scale()}px`
+    );
 
     // g.selectAll('path').attr(
     //   'stroke-width',
     //   `${STATE_BORDER_SIZE / zoom.scale()}px`
     // );
 
-    // g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
+    g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
 
     // svg
     //   .selectAll("circle")
