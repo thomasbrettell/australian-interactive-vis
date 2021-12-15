@@ -9305,7 +9305,9 @@ d3.json(
       .attr('data-id', (dp) => dp.id)
       .attr('data-nn', (dp) => dp.nnId)
       .append('title')
-      .text((d) => d.Postcode);
+      .text((dp) => {
+        return `ID: ${dp.id}. NN: ${dp.nnId}`;
+      });
 
     //State names
     g.selectAll('text')
