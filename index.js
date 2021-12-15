@@ -9255,7 +9255,9 @@ const postCodeData = [
 const w = window.innerWidth;
 const h = window.innerHeight;
 const STATE_FONT_SIZE = 16;
+const SUBURB_FONT_SIZE = 10;
 const STATE_BORDER_SIZE = 0.5;
+const SHOW_LABELS_THRESHOLD = 80;
 const POSTCODE_R = 5;
 
 //Define map projection
@@ -9294,13 +9296,14 @@ d3.json(
       });
 
     //Postcodes
-    g.selectAll('circle')
+    g.selectAll('.data-points')
       .data(postCodeData)
       .enter()
+      .append('g')
+      .attr('class', 'data-points')
+      .attr('transform', (d) => `translate(${projection([d.lng, d.lat])})`)
       .append('circle')
       .attr('r', POSTCODE_R)
-      .attr('cx', (d) => projection([d.lng, d.lat])[0])
-      .attr('cy', (d) => projection([d.lng, d.lat])[1])
       .attr('fill', '#ff00005c')
       .attr('data-id', (dp) => dp.id)
       .attr('data-nn', (dp) => dp.nnId)
@@ -9309,11 +9312,21 @@ d3.json(
         return `ID: ${dp.id}. NN: ${dp.nnId}`;
       });
 
+    g.selectAll('.data-points')
+      .append('text')
+      .attr('class', 'suburb-label')
+      .attr('font-size', `${SUBURB_FONT_SIZE}px`)
+      .text((dp) => dp.Suburb)
+      .attr('text-anchor', 'middle')
+      .attr('dy', '.35em')
+      .attr('display', 'none');
+
     //State names
-    g.selectAll('text')
+    g.selectAll('.state-label')
       .data(json.features)
       .enter()
       .append('text')
+      .attr('class', 'state-label')
       .attr('fill', 'darkslategray')
       .attr(
         'transform-origin',
@@ -9350,14 +9363,25 @@ const zoom = d3.behavior
       `${STATE_BORDER_SIZE / zoom.scale()}px`
     );
 
-    //Adjust State names on zoom
-    g.selectAll('text').attr(
+    g.selectAll('.suburb-label').attr(
+      'font-size',
+      `${SUBURB_FONT_SIZE / zoom.scale()}px`
+    );
+
+    // Adjust State names on zoom
+    g.selectAll('.state-label').attr(
       'font-size',
       `${STATE_FONT_SIZE / zoom.scale()}px`
     );
 
-    //Adjust data points on zoom
+    // Adjust data points on zoom
     g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
+
+    if (d3.event.scale > SHOW_LABELS_THRESHOLD) {
+      g.selectAll('.suburb-label').attr('display', 'block');
+    } else {
+      g.selectAll('.suburb-label').attr('display', 'none');
+    }
   });
 
 svg.call(zoom);
