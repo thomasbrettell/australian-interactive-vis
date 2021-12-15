@@ -9261,16 +9261,16 @@ const SHOW_LABELS_THRESHOLD = 80;
 const POSTCODE_R = 5;
 
 //Define map projection
-const projection = d3.geo
-  .mercator()
+const projection = d3
+  .geoMercator()
   .center([137, -28])
   .translate([w / 2, h / 2])
   .scale(1500);
 
 //Define path generator
-const path = d3.geo.path().projection(projection);
+const path = d3.geoPath().projection(projection);
 
-const color = d3.scale.ordinal().range(['#ffffb3']);
+const color = d3.scaleOrdinal().range(['#ffffb3']);
 
 //Create SVG
 const body = d3.select('body');
@@ -9279,107 +9279,110 @@ const g = svg.append('g');
 
 //Load in GeoJSON data
 d3.json(
-  'https://gist.githubusercontent.com/GerardoFurtado/02aa65e5522104cb692e/raw/8108fbd4103a827e67444381ff594f7df8450411/aust.json',
-  function (json) {
-    //Add vis elements
-    //States
-    g.selectAll('path')
-      .data(json.features)
-      .enter()
-      .append('path')
-      .attr('d', path)
-      .attr('stroke', 'dimgray')
-      .attr('stroke-width', STATE_BORDER_SIZE)
-      .attr('fill', function (d, i) {
-        console.log;
-        return color(i);
-      });
+  'https://gist.githubusercontent.com/GerardoFurtado/02aa65e5522104cb692e/raw/8108fbd4103a827e67444381ff594f7df8450411/aust.json'
+).then((json) => {
+  //Add vis elements
+  //States
+  g.selectAll('path')
+    .data(json.features)
+    .enter()
+    .append('path')
+    .attr('d', path)
+    .attr('stroke', 'dimgray')
+    .attr('stroke-width', STATE_BORDER_SIZE)
+    .attr('fill', function (d, i) {
+      console.log;
+      return color(i);
+    });
 
-    //Postcodes
-    g.selectAll('.data-points')
-      .data(postCodeData)
-      .enter()
-      .append('g')
-      .attr('class', 'data-points')
-      .attr('transform', (d) => `translate(${projection([d.lng, d.lat])})`)
-      .append('circle')
-      .attr('r', POSTCODE_R)
-      .attr('fill', '#ff00005c')
-      .attr('data-id', (dp) => dp.id)
-      .attr('data-nn', (dp) => dp.nnId)
-      .append('title')
-      .text((dp) => {
-        return `ID: ${dp.id}. NN: ${dp.nnId}`;
-      });
+  //Postcodes
+  g.selectAll('.data-points')
+    .data(postCodeData)
+    .enter()
+    .append('g')
+    .attr('class', 'data-points')
+    .attr('transform', (d) => `translate(${projection([d.lng, d.lat])})`)
+    .append('circle')
+    .attr('r', POSTCODE_R)
+    .attr('fill', '#ff00005c')
+    .attr('data-id', (dp) => dp.id)
+    .attr('data-nn', (dp) => dp.nnId)
+    .append('title')
+    .text((dp) => {
+      return `ID: ${dp.id}. NN: ${dp.nnId}`;
+    });
 
-    g.selectAll('.data-points')
-      .append('text')
-      .attr('class', 'suburb-label')
-      .attr('font-size', `${SUBURB_FONT_SIZE}px`)
-      .text((dp) => dp.Suburb)
-      .attr('text-anchor', 'middle')
-      .attr('dy', '.35em')
-      .attr('display', 'none');
+  g.selectAll('.data-points')
+    .append('text')
+    .attr('class', 'suburb-label')
+    .attr('font-size', `${SUBURB_FONT_SIZE}px`)
+    .text((dp) => dp.Suburb)
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .attr('display', 'none');
 
-    //State names
-    g.selectAll('.state-label')
-      .data(json.features)
-      .enter()
-      .append('text')
-      .attr('class', 'state-label')
-      .attr('fill', 'darkslategray')
-      .attr(
-        'transform-origin',
-        (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
-      )
-      .attr('x', function (d) {
-        return path.centroid(d)[0];
-      })
-      .attr('y', function (d) {
-        return path.centroid(d)[1];
-      })
-      .attr('text-anchor', 'middle')
-      .attr('dy', '.35em')
-      .attr('font-size', `${STATE_FONT_SIZE}px`)
-      .text(function (d) {
-        return d.properties.STATE_NAME;
-      });
-  }
-);
+  //State names
+  g.selectAll('.state-label')
+    .data(json.features)
+    .enter()
+    .append('text')
+    .attr('class', 'state-label')
+    .attr('fill', 'darkslategray')
+    .attr(
+      'transform-origin',
+      (d) => `${path.centroid(d)[0]} ${path.centroid(d)[1]}`
+    )
+    .attr('x', function (d) {
+      return path.centroid(d)[0];
+    })
+    .attr('y', function (d) {
+      return path.centroid(d)[1];
+    })
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .attr('font-size', `${STATE_FONT_SIZE}px`)
+    .text(function (d) {
+      return d.properties.STATE_NAME;
+    });
+});
 
-const zoom = d3.behavior
+let isLabelsShowing = false;
+const zoom = d3
   .zoom()
   .scaleExtent([1, 128])
-  .on('zoom', () => {
+  .on('zoom', (event) => {
+    const zoomScale = event.transform.k;
     //Adjust group on zoom
     g.attr(
       'transform',
-      `translate(${d3.event.translate.join(',')}) scale(${d3.event.scale})`
+      `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`
     );
 
     //Adjust States on zoom
     g.selectAll('path').attr(
       'stroke-width',
-      `${STATE_BORDER_SIZE / zoom.scale()}px`
+      `${STATE_BORDER_SIZE / zoomScale}px`
     );
 
     g.selectAll('.suburb-label').attr(
       'font-size',
-      `${SUBURB_FONT_SIZE / zoom.scale()}px`
+      `${SUBURB_FONT_SIZE / zoomScale}px`
     );
 
     // Adjust State names on zoom
     g.selectAll('.state-label').attr(
       'font-size',
-      `${STATE_FONT_SIZE / zoom.scale()}px`
+      `${STATE_FONT_SIZE / zoomScale}px`
     );
 
     // Adjust data points on zoom
-    g.selectAll('circle').attr('r', POSTCODE_R / zoom.scale());
+    g.selectAll('circle').attr('r', POSTCODE_R / zoomScale);
 
-    if (d3.event.scale > SHOW_LABELS_THRESHOLD) {
+    if (event.transform.k > SHOW_LABELS_THRESHOLD && !isLabelsShowing) {
+      isLabelsShowing = true;
       g.selectAll('.suburb-label').attr('display', 'block');
-    } else {
+    } else if (event.transform.k < SHOW_LABELS_THRESHOLD && isLabelsShowing) {
+      isLabelsShowing = false;
       g.selectAll('.suburb-label').attr('display', 'none');
     }
   });
